@@ -1,0 +1,75 @@
+{% extends "master.html" %}
+
+{% block content %}
+<h2 class="mt-4">Pay-Slip Upload</h2>
+<input type="file" id="slip">
+<button class="btn btn-primary" onclick="uploadSlip()">Upload</button>
+<div id="loading" style="display:none;">Uploading...</div>
+<div id="result"></div>
+
+<script>
+let ocrData = null;
+
+async function uploadSlip() {
+  let file = document.getElementById("slip").files[0]
+  let formData = new FormData()
+  formData.append("file", file)
+  // show loading
+  document.getElementById("loading").style.display = "block"
+  let res = await fetch("/api/pvs/upload-ocr", {
+    method: "POST",
+    body: formData
+  })
+  ocrData = await res.json()
+  // hide loading
+  document.getElementById("loading").style.display = "none"
+  showResult(ocrData)
+}
+function showResult(data) {
+  let html = `
+    <p><b>Amount:</b> ${data.amount}</p>
+    <p><b>DateTime:</b> ${data.datetime}</p>
+    <p><b>Raw Text:</b> ${data.text}</p>
+  `
+  document.getElementById("result").innerHTML = html
+}
+</script>
+
+<h2 class="mt-4">Orders</h2>
+<button class="btn btn-warning btn-lg mb-3" onclick="verifySlip()">Verify Slip</button>
+<table border="1" id="orderTable" class="table table-bordered mb-5">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Order No</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="orderBody"></tbody>
+</table>
+
+<script>
+async function loadOrders() {
+  const res = await fetch('/api/pvs/orders');
+  const data = await res.json();
+
+  const tbody = document.getElementById('orderBody');
+  tbody.innerHTML = '';
+  data.forEach(o => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${o.id}</td>
+        <td>${o.order_no}</td>
+        <td>${o.amount_total}</td>
+        <td>${o.order_date}</td>
+        <td>${o.state}</td>
+      </tr>
+    `;
+  });
+}
+
+loadOrders();
+</script>
+{% endblock %}
