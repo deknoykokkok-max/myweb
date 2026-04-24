@@ -41,11 +41,13 @@ def get_current_user(request: Request):
 def home(request: Request, user=Depends(get_current_user)):
     if isinstance(user, RedirectResponse):
         return user
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={
         "message": "Hello World",
         "score": 76,
-        "activities": ["Running", "Badminton", "Football"]
+        "activities": ["Running", "Football", "Badminton"]
     })
 
 
@@ -275,9 +277,11 @@ def get_orders():
 def login_page(request: Request):
     if request.session.get("user"):
         return RedirectResponse("/", status_code=303)
-    return templates.TemplateResponse("login.html", {
-        "request": request
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={}
+    )
 
 @app.post("/login")
 def login(request: Request, username: str = Form(...), password: str =
