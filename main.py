@@ -191,10 +191,10 @@ def product_search_api(search: str = "", user=Depends(verify_token)):
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-import easyocr
-import re
+#import easyocr
+#import re
 
-reader = easyocr.Reader(['th','en'])
+#reader = easyocr.Reader(['th','en'])
 
 @app.get("/pvs/upload", response_class=HTMLResponse)
 def pvs_upload(request: Request):
